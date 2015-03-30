@@ -1,5 +1,5 @@
-class QRCreatorGrailsPlugin {
-    def name = "QRCreator"
+class QrcreatorGrailsPlugin {
+    def name = "qrcreator"
     // the plugin version
     def version = "0.1"
     // resources that are excluded from plugin packaging
@@ -7,10 +7,10 @@ class QRCreatorGrailsPlugin {
             "grails-app/views/error.gsp"
     ]
 
-    def grailsVersion = "2.4 > *"
+    def grailsVersion = "2.5.0 > *"
     def author = "Tobias Singhania"
     def authorEmail = "tobisinghania@gmail.com"
-    def title = "QRCreator"
+    def title = "qrcreator"
     def description = '''    TagLib for QR-code creation which can be embedded in a website. Based on code from the
     zxing library (https://github.com/zxing/zxing/).
 

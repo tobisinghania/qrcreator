@@ -22,7 +22,6 @@
 /*.war
 
 # plugin release files
-/*.zip
 /plugin.xml
 
 # older plugin install locations
