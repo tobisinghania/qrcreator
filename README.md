@@ -1,4 +1,4 @@
-# QRCreator Grail Plugin
+# QRCreator Grails Plugin
 Grails Plugin for embedding QR codes in a webpage which is based on code from the 
 [zxing library ](https://github.com/zxing/zxing)
 
