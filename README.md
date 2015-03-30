@@ -6,6 +6,10 @@ It allows you to place a logo in the center of the QR code and gives full contro
 Logos can be loaded from a local file on the server or from a URL.  
 The QR code is embedded directly into the HTML page as Base64 encoded PNG image when created with the provided TagLib.
 
+## Installation
+* Clone the repository `git clone https://github.com/tobisinghania/qrcreator.git`
+* Install plugin into local maven repository `grails install-maven`
+* Include plugin in your BuildConfig.groovy `compile ":qrcreator:0.1"`
 
 ## QRCreator TagLib
 
