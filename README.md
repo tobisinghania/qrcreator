@@ -38,7 +38,7 @@ value of 2 means, that the quiteZone will be 2 times the size of a block in the 
 ```html
 <qrcode:logo height="400" width="400" class="MyCLass" lwidth="10" lheight="10" logo="images/logo.png" qzs="2" text="Another messages"/>
 ```
-![QR 1](/img/qr3.png)
+![QR 1](/img/qr2.png)
 <br/>
 <br/>
 
