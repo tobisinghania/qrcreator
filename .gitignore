@@ -29,5 +29,11 @@
 /plugins
 /web-app/plugins
 
-# "temporary" build files
-/target
+# IntelliJ
+/*.iml
+.project
+.classpath
+.idea
+build
+target
+out
