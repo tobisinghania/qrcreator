@@ -1,4 +1,5 @@
 class QRCreatorGrailsPlugin {
+    def name = "QRCreator"
     // the plugin version
     def version = "0.1"
     // resources that are excluded from plugin packaging
@@ -13,13 +14,13 @@ class QRCreatorGrailsPlugin {
     def description = '''    TagLib for QR-code creation which can be embedded in a website. Based on code from the
     zxing library (https://github.com/zxing/zxing/).
 
-    This plugin gives full control over the QR-code error correction level, the image format and
-    and the size generated QR-code.
+    This plugin gives full control over the QR-code error correction level, quite zone size
+    and the size of the generated QR-code.
     Additionally, a logo can be placed in the center of the code.
 '''
 
     // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/qr-generator"
+    def documentation = "https://github.com/tobisinghania/qrcreator"
 
     // Extra (optional) plugin metadata
 

@@ -17,8 +17,8 @@ class QrGenerationTest {
                 " without any meaning or point, therefore leaving the reader " +
                 " as uninformed as he has been", 800, 800, "H");
         MatrixToImageWriter.writeToPath(bitmatrix, "png",
-                FileSystems.getDefault().getPath("/tmp/", "qrcode.png"))
-        def file = new File('/tmp/qrcode.png')
+                FileSystems.getDefault().getPath(".", "qrcode.png"))
+        def file = new File('qrcode.png')
         assert file.exists()
 //        file.delete()
     }
@@ -27,7 +27,7 @@ class QrGenerationTest {
     def void testqrCodeGeneratorTextDesign() {
         def writer = new ImageWriter()
         def img = writer.encode("My test string@2349087234987)+",
-                "H", new LogoDesign("logo.png", 800,800, 21,21));
+                "H", new LogoDesign("images/logo.png", 800,800, 21,21));
         assert img.getHeight()==800
         assert img.getWidth() ==800
     }

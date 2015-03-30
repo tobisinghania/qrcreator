@@ -106,7 +106,6 @@ public  class ImageWriter {
             if (ecl != null)
                 errorCorrectionLevel = ecl as ErrorCorrectionLevel
         } catch (IllegalArgumentException e) {}
-        print errorCorrectionLevel
         int quietZone = qz
         if (hints != null) {
             ErrorCorrectionLevel requestedECLevel = (ErrorCorrectionLevel) hints.get(EncodeHintType.ERROR_CORRECTION);
