@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2007 ZXing authors
  *
@@ -15,10 +13,12 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
 
+import groovy.transform.CompileStatic
 
 /**
- * <p>This class contains utility methods for performing mathematical operations over
+ * <p>Contains utility methods for performing mathematical operations over
  * the Galois Fields. Operations use a given primitive polynomial in calculations.</p>
  *
  * <p>Throughout this package, elements of the GF are represented as an {@code int}
@@ -31,66 +31,57 @@ package qrcreator
  * Modified for Groovy compatibility
  * @author Tobias Singhania
  */
-public  class GenericGF {
+@CompileStatic
+class GenericGF {
 
-    public static  AZTEC_DATA_12 = new GenericGF(0x1069, 4096, 1); // x^12 + x^6 + x^5 + x^3 + 1
-    public static  AZTEC_DATA_10 = new GenericGF(0x409, 1024, 1); // x^10 + x^3 + 1
-    public static  AZTEC_DATA_6 = new GenericGF(0x43, 64, 1); // x^6 + x + 1
-    public static  AZTEC_PARAM = new GenericGF(0x13, 16, 1); // x^4 + x + 1
-    public static  QR_CODE_FIELD_256 = new GenericGF(0x011D, 256, 0); // x^8 + x^4 + x^3 + x^2 + 1
-    public static  DATA_MATRIX_FIELD_256 = new GenericGF(0x012D, 256, 1); // x^8 + x^5 + x^3 + x^2 + 1
-    public static  AZTEC_DATA_8 = DATA_MATRIX_FIELD_256;
-    public static  MAXICODE_FIELD_64 = AZTEC_DATA_6;
+    static final GenericGF AZTEC_DATA_12 = new GenericGF(0x1069, 4096, 1) // x^12 + x^6 + x^5 + x^3 + 1
+    static final GenericGF AZTEC_DATA_10 = new GenericGF(0x409, 1024, 1) // x^10 + x^3 + 1
+    static final GenericGF AZTEC_DATA_6 = new GenericGF(0x43, 64, 1) // x^6 + x + 1
+    static final GenericGF AZTEC_PARAM = new GenericGF(0x13, 16, 1) // x^4 + x + 1
+    static final GenericGF QR_CODE_FIELD_256 = new GenericGF(0x011D, 256, 0) // x^8 + x^4 + x^3 + x^2 + 1
+    static final GenericGF DATA_MATRIX_FIELD_256 = new GenericGF(0x012D, 256, 1) // x^8 + x^5 + x^3 + x^2 + 1
+    static final GenericGF AZTEC_DATA_8 = DATA_MATRIX_FIELD_256
+    static final GenericGF MAXICODE_FIELD_64 = AZTEC_DATA_6
 
-    private  int[] expTable;
-    private  int[] logTable;
-    private  GenericGFPoly zero;
-    private  GenericGFPoly one;
-    private  int size;
-    private  int primitive;
-    private  int generatorBase;
+    private int[] expTable
+    private int[] logTable
+    final GenericGFPoly zero
+    final GenericGFPoly one
+    final int size
+    private int primitive
+    final int generatorBase
 
     /**
      * Create a representation of GF(size) using the given primitive polynomial.
      *
      * @param primitive irreducible polynomial whose coefficients are represented by
-     *  the bits of an int, where the least-significant bit represents the constant
-     *  coefficient
+     *        the bits of an int, where the least-significant bit represents the constant
+     *        coefficient
      * @param size the size of the field
      * @param b the factor b in the generator polynomial can be 0- or 1-based
-     *  (g(x) = (x+a^b)(x+a^(b+1))...(x+a^(b+2t-1))).
-     *  In most cases it should be 1, but for QR code it is 0.
+     *        (g(x) = (x+a^b)(x+a^(b+1))...(x+a^(b+2t-1))).
+     *        In most cases it should be 1, but for QR code it is 0.
      */
-    public GenericGF(int primitive, int size, int b) {
-        this.primitive = primitive;
-        this.size = size;
-        this.generatorBase = b;
+    GenericGF(int primitive, int size, int b) {
+        this.primitive = primitive
+        this.size = size
+        generatorBase = b
 
-        expTable = new int[size];
-        logTable = new int[size];
-        int x = 1;
-        for (int i = 0; i < size; i++) {
-            expTable[i] = x;
-            x *= 2; // we're assuming the generator alpha is 2
+        expTable = new int[size]
+        logTable = new int[size]
+        int x = 1
+        size.times { int i ->
+            expTable[i] = x
+            x *= 2 // we're assuming the generator alpha is 2
             if (x >= size) {
-                x ^= primitive;
-                x &= size-1;
+                x ^= primitive
+                x &= size-1
             }
         }
-        for (int i = 0; i < size-1; i++) {
-            logTable[expTable[i]] = i;
-        }
+        (size - 1).times { int i -> logTable[expTable[i]] = i }
         // logTable[0] == 0 but this should never be used
-        zero = new GenericGFPoly(this, [0] as int[]);
-        one = new GenericGFPoly(this, [1] as int[]);
-    }
-
-    GenericGFPoly getZero() {
-        return zero;
-    }
-
-    GenericGFPoly getOne() {
-        return one;
+        zero = new GenericGFPoly(this, [0] as int[])
+        one = new GenericGFPoly(this, [1] as int[])
     }
 
     /**
@@ -98,14 +89,14 @@ public  class GenericGF {
      */
     GenericGFPoly buildMonomial(int degree, int coefficient) {
         if (degree < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException()
         }
         if (coefficient == 0) {
-            return zero;
+            return zero
         }
-        int[] coefficients = new int[degree + 1];
-        coefficients[0] = coefficient;
-        return new GenericGFPoly(this, coefficients);
+        int[] coefficients = new int[degree + 1]
+        coefficients[0] = coefficient
+        return new GenericGFPoly(this, coefficients)
     }
 
     /**
@@ -114,14 +105,14 @@ public  class GenericGF {
      * @return sum/difference of a and b
      */
     static int addOrSubtract(int a, int b) {
-        return a ^ b;
+        return a ^ b
     }
 
     /**
      * @return 2 to the power of a in GF(size)
      */
     int exp(int a) {
-        return expTable[a];
+        return expTable[a]
     }
 
     /**
@@ -129,9 +120,9 @@ public  class GenericGF {
      */
     int log(int a) {
         if (a == 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException()
         }
-        return logTable[a];
+        return logTable[a]
     }
 
     /**
@@ -139,9 +130,9 @@ public  class GenericGF {
      */
     int inverse(int a) {
         if (a == 0) {
-            throw new ArithmeticException();
+            throw new ArithmeticException()
         }
-        return expTable[size - logTable[a] - 1];
+        return expTable[size - logTable[a] - 1]
     }
 
     /**
@@ -149,22 +140,13 @@ public  class GenericGF {
      */
     int multiply(int a, int b) {
         if (a == 0 || b == 0) {
-            return 0;
+            return 0
         }
-        return expTable[(logTable[a] + logTable[b]) % (size - 1)];
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public int getGeneratorBase() {
-        return generatorBase;
+        return expTable[(logTable[a] + logTable[b]) % (size - 1)]
     }
 
     @Override
-    public String toString() {
-        return "GF(0x" + Integer.toHexString(primitive) + ',' + size + ')';
+    String toString() {
+        return "GF(0x" + Integer.toHexString(primitive) + ',' + size + ')'
     }
-
 }

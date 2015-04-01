@@ -1,4 +1,3 @@
-package qrcreator
 /**
  * Copyright (C) 2015 Tobias Singhania
  *
@@ -14,9 +13,11 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-class QRCodeTagLib {
-    static namespace = "qrcode"
+package qrcreator
 
+class QRCodeTagLib {
+
+    static namespace = "qrcode"
 
     /**
      *  <qrcode:logo text="my text" height="100" width="100" class="MyClass" logo="mylogo.png" ecl="Q"/>
@@ -44,32 +45,31 @@ class QRCodeTagLib {
         return result
     }
 
-    private String encodeImage(LinkedHashMap params) {
+    private String encodeImage(Map params) {
         def qrcreator = new ImageWriter()
         if (params.logo) {
             return qrcreator.encodeBase64(
-                    params.text ? params.text : "",
-                    params.ecl ? params.ecl : 'L',
-                    new LogoDesign(params.logo ? params.logo : "logo.png",
-                            params.width ? params.width : 200,
-                            params.height ? params.height : 200,
-                            params.lwidth ? params.lwidth : 15,
-                            params.lheight ? params.lheight : 15,
-                            params.qzs ? (params.qzs > 1 ? params.qzs : 4) : 4))
+                params.text ?: "",
+                params.ecl ?: 'L',
+                new LogoDesign(params.logo ?: "logo.png",
+                               params.width ?: 200,
+                               params.height ?: 200,
+                               params.lwidth ?: 15,
+                               params.lheight ?: 15,
+                               params.qzs ? (params.qzs > 1 ? params.qzs : 4) : 4))
         }
-        return qrcreator.encodeBase64(
-                params.text ? params.text : "",
-                params.ecl ? params.ecl : 'L',
-                params.width ? params.width : 200,
-                params.height ? params.height : 200
-        )
 
+        return qrcreator.encodeBase64(
+            params.text ?: "",
+            params.ecl ?: 'L',
+            params.width ?: 200,
+            params.height ?: 200)
     }
 
     private String renderQR(attrs) {
         def params = getAttribute(attrs, ['height', 'width', 'class', 'logo', 'lwidth', 'lheight', 'alt', 'qzs', 'ecl', 'text'])
-        print params
-        if(! params['class']) params['class'] = 'qrcode'
+        log.debug params
+        if (!params['class']) params['class'] = 'qrcode'
         def b64Img = encodeImage(params)
         return """<img src='data:image/png;base64,
             ${b64Img}' class="${params['class']}"
@@ -83,7 +83,6 @@ class QRCodeTagLib {
                 s << """ ${key}='${value}'"""
             }
         }
-        s.toString()
+        s
     }
-
 }

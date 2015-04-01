@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2012 ZXing authors
  *
@@ -15,61 +13,55 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
 
+import groovy.transform.CompileStatic
 
-import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImage
 
 /**
  * Encapsulates custom configuration used in methods of {@link MatrixToImageWriter}.
  */
-public  class MatrixToImageConfig {
+@CompileStatic
+class MatrixToImageConfig {
 
-    public static  int BLACK = 0xFF000000;
-    public static  int WHITE = 0xFFFFFFFF;
+    static final int BLACK = (int)0xFF000000
+    static final int WHITE = (int)0xFFFFFFFF
 
-    private  int onColor;
-    private  int offColor;
+    final int pixelOnColor
+    final int pixelOffColor
 
     /**
      * Creates a default config with on color {@link #BLACK} and off color {@link #WHITE}, generating normal
      * black-on-white barcodes.
      */
-    public MatrixToImageConfig() {
-        this(BLACK, WHITE);
+    MatrixToImageConfig() {
+        this(BLACK, WHITE)
     }
 
     /**
      * @param onColor pixel on color, specified as an ARGB value as an int
      * @param offColor pixel off color, specified as an ARGB value as an int
      */
-    public MatrixToImageConfig(int onColor, int offColor) {
-        this.onColor = onColor;
-        this.offColor = offColor;
-    }
-
-    public int getPixelOnColor() {
-        return onColor;
-    }
-
-    public int getPixelOffColor() {
-        return offColor;
+    MatrixToImageConfig(int onColor, int offColor) {
+        pixelOnColor = onColor
+        pixelOffColor = offColor
     }
 
     int getBufferedImageColorModel() {
-        if (onColor == BLACK && offColor == WHITE) {
+        if (pixelOnColor == BLACK && pixelOffColor == WHITE) {
             // Use faster BINARY if colors match default
-            return BufferedImage.TYPE_BYTE_BINARY;
+            return BufferedImage.TYPE_BYTE_BINARY
         }
-        if (hasTransparency(onColor) || hasTransparency(offColor)) {
+        if (hasTransparency(pixelOnColor) || hasTransparency(pixelOffColor)) {
             // Use ARGB representation if colors specify non-opaque alpha
-            return BufferedImage.TYPE_INT_ARGB;
+            return BufferedImage.TYPE_INT_ARGB
         }
         // Default otherwise to RGB representation with ignored alpha channel
-        return BufferedImage.TYPE_INT_RGB;
+        return BufferedImage.TYPE_INT_RGB
     }
 
     private static boolean hasTransparency(int argb) {
-        return (argb & 0xFF000000) != 0xFF000000;
+        return (argb & 0xFF000000) != 0xFF000000
     }
-
 }

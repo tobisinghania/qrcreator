@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2007 ZXing authors
  *
@@ -15,7 +13,9 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
 
+import groovy.transform.CompileStatic
 
 /**
  * <p>Represents a polynomial whose coefficients are elements of a GF.
@@ -29,70 +29,63 @@ package qrcreator
  * Modified for Groovy compatibility
  * @author Tobias Singhania
  */
- class GenericGFPoly {
+@CompileStatic
+class GenericGFPoly {
 
-    private  GenericGF field;
-    private  int[] coefficients;
+    private GenericGF field
+    final int[] coefficients
 
     /**
      * @param field the {@link GenericGF} instance representing the field to use
-     * to perform computations
+     *        to perform computations
      * @param coefficients coefficients as ints representing elements of GF(size), arranged
-     * from most significant (highest-power term) coefficient to least significant
+     *        from most significant (highest-power term) coefficient to least significant
      * @throws IllegalArgumentException if argument is null or empty,
-     * or if leading coefficient is 0 and this is not a
-     * constant polynomial (that is, it is not the monomial "0")
+     *         or if leading coefficient is 0 and this is not a
+     *         constant polynomial (that is, it is not the monomial "0")
      */
     GenericGFPoly(GenericGF field, int[] coefficients) {
-        if (coefficients.size() == 0) {
-            throw new IllegalArgumentException();
+        int coefficientsLength = coefficients.size()
+        if (coefficientsLength == 0) {
+            throw new IllegalArgumentException()
         }
-        this.field = field;
-        int coefficientsLength = coefficients.size();
+        this.field = field
         if (coefficientsLength > 1 && coefficients[0] == 0) {
             // Leading term must be non-zero for anything except the constant polynomial "0"
-            int firstNonZero = 1;
+            int firstNonZero = 1
             while (firstNonZero < coefficientsLength && coefficients[firstNonZero] == 0) {
-                firstNonZero++;
+                firstNonZero++
             }
             if (firstNonZero == coefficientsLength) {
-                this.coefficients = [0];
+                this.coefficients = [0]
             } else {
-                this.coefficients = new int[coefficientsLength - firstNonZero];
-                System.arraycopy(coefficients,
-                        firstNonZero,
-                        this.coefficients,
-                        0,
-                        this.coefficients.size());
+                this.coefficients = new int[coefficientsLength - firstNonZero]
+                System.arraycopy(coefficients, firstNonZero, this.coefficients, 0, this.coefficients.size())
             }
         } else {
-            this.coefficients = coefficients;
+            this.coefficients = coefficients
         }
-    }
-
-    int[] getCoefficients() {
-        return coefficients;
     }
 
     /**
      * @return degree of this polynomial
      */
     int getDegree() {
-        return coefficients.size() - 1;
+        return coefficients.size() - 1
     }
 
     /**
      * @return true iff this polynomial is the monomial "0"
      */
     boolean isZero() {
-        return coefficients[0] == 0;
+        return coefficients[0] == 0
     }
 
     /**
      * @return coefficient of x^degree term in this polynomial
      */
     int getCoefficient(int degree) {
-        return coefficients[coefficients.size() - 1 - degree];
+        return coefficients[coefficients.size() - 1 - degree]
     }
 
     /**
@@ -101,168 +94,161 @@ package qrcreator
     int evaluateAt(int a) {
         if (a == 0) {
             // Just return the x^0 coefficient
-            return getCoefficient(0);
+            return getCoefficient(0)
         }
-        int size = coefficients.size();
+        int size = coefficients.size()
         if (a == 1) {
             // Just the sum of the coefficients
-            int result = 0;
-            for (int coefficient : coefficients) {
-                result = GenericGF.addOrSubtract(result, coefficient);
-            }
-            return result;
+            int result = 0
+            coefficients.each { int coefficient -> result = GenericGF.addOrSubtract(result, coefficient) }
+            return result
         }
-        int result = coefficients[0];
+        int result = coefficients[0]
         for (int i = 1; i < size; i++) {
-            result = GenericGF.addOrSubtract(field.multiply(a, result), coefficients[i]);
+            result = GenericGF.addOrSubtract(field.multiply(a, result), coefficients[i])
         }
-        return result;
+        return result
     }
 
     GenericGFPoly addOrSubtract(GenericGFPoly other) {
-        if (!field.equals(other.field)) {
-            throw new IllegalArgumentException("GenericGFPolys do not have same GenericGF field");
+        if (field != other.field) {
+            throw new IllegalArgumentException("GenericGFPolys do not have same GenericGF field")
         }
         if (isZero()) {
-            return other;
+            return other
         }
         if (other.isZero()) {
-            return this;
+            return this
         }
 
-        int[] smallerCoefficients = this.coefficients;
-        int[] largerCoefficients = other.coefficients;
+        int[] smallerCoefficients = this.coefficients
+        int[] largerCoefficients = other.coefficients
         if (smallerCoefficients.size() > largerCoefficients.size()) {
-            int[] temp = smallerCoefficients;
-            smallerCoefficients = largerCoefficients;
-            largerCoefficients = temp;
+            int[] temp = smallerCoefficients
+            smallerCoefficients = largerCoefficients
+            largerCoefficients = temp
         }
-        int[] sumDiff = new int[largerCoefficients.size()];
-        int lengthDiff = largerCoefficients.size() - smallerCoefficients.size();
+        int[] sumDiff = new int[largerCoefficients.size()]
+        int lengthDiff = largerCoefficients.size() - smallerCoefficients.size()
         // Copy high-order terms only found in higher-degree polynomial's coefficients
-        System.arraycopy(largerCoefficients, 0, sumDiff, 0, lengthDiff);
+        System.arraycopy(largerCoefficients, 0, sumDiff, 0, lengthDiff)
 
-        for (int i = lengthDiff; i < largerCoefficients.size(); i++) {
-            sumDiff[i] = GenericGF.addOrSubtract(smallerCoefficients[i - lengthDiff], largerCoefficients[i]);
+        int size = largerCoefficients.size()
+        for (int i = lengthDiff; i < size; i++) {
+            sumDiff[i] = GenericGF.addOrSubtract(smallerCoefficients[i - lengthDiff], largerCoefficients[i])
         }
 
-        return new GenericGFPoly(field, sumDiff);
+        return new GenericGFPoly(field, sumDiff)
     }
 
     GenericGFPoly multiply(GenericGFPoly other) {
-        if (!field.equals(other.field)) {
-            throw new IllegalArgumentException("GenericGFPolys do not have same GenericGF field");
+        if (field != other.field) {
+            throw new IllegalArgumentException("GenericGFPolys do not have same GenericGF field")
         }
         if (isZero() || other.isZero()) {
-            return field.getZero();
+            return field.zero
         }
-        int[] aCoefficients = this.coefficients;
-        int aLength = aCoefficients.size();
-        int[] bCoefficients = other.coefficients;
-        int bLength = bCoefficients.size();
-        int[] product = new int[aLength + bLength - 1];
+        int[] aCoefficients = this.coefficients
+        int aLength = aCoefficients.size()
+        int[] bCoefficients = other.coefficients
+        int bLength = bCoefficients.size()
+        int[] product = new int[aLength + bLength - 1]
         for (int i = 0; i < aLength; i++) {
-            int aCoeff = aCoefficients[i];
+            int aCoeff = aCoefficients[i]
             for (int j = 0; j < bLength; j++) {
-                product[i + j] = GenericGF.addOrSubtract(product[i + j],
-                        field.multiply(aCoeff, bCoefficients[j]));
+                product[i + j] = GenericGF.addOrSubtract(product[i + j], field.multiply(aCoeff, bCoefficients[j]))
             }
         }
-        return new GenericGFPoly(field, product);
+        return new GenericGFPoly(field, product)
     }
 
     GenericGFPoly multiply(int scalar) {
         if (scalar == 0) {
-            return field.getZero();
+            return field.zero
         }
         if (scalar == 1) {
-            return this;
+            return this
         }
-        int size = coefficients.size();
-        int[] product = new int[size];
-        for (int i = 0; i < size; i++) {
-            product[i] = field.multiply(coefficients[i], scalar);
-        }
-        return new GenericGFPoly(field, product);
+        int size = coefficients.size()
+        int[] product = new int[size]
+        size.times { int i -> product[i] = field.multiply(coefficients[i], scalar) }
+        return new GenericGFPoly(field, product)
     }
 
     GenericGFPoly multiplyByMonomial(int degree, int coefficient) {
         if (degree < 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException()
         }
         if (coefficient == 0) {
-            return field.getZero();
+            return field.zero
         }
-        int size = coefficients.size();
-        int[] product = new int[size + degree];
-        for (int i = 0; i < size; i++) {
-            product[i] = field.multiply(coefficients[i], coefficient);
-        }
-        return new GenericGFPoly(field, product);
+        int size = coefficients.size()
+        int[] product = new int[size + degree]
+        size.times { int i -> product[i] = field.multiply(coefficients[i], coefficient) }
+        return new GenericGFPoly(field, product)
     }
 
     GenericGFPoly[] divide(GenericGFPoly other) {
-        if (!field.equals(other.field)) {
-            throw new IllegalArgumentException("GenericGFPolys do not have same GenericGF field");
+        if (field != other.field) {
+            throw new IllegalArgumentException("GenericGFPolys do not have same GenericGF field")
         }
         if (other.isZero()) {
-            throw new IllegalArgumentException("Divide by 0");
+            throw new IllegalArgumentException("Divide by 0")
         }
 
-        GenericGFPoly quotient = field.getZero();
-        GenericGFPoly remainder = this;
+        GenericGFPoly quotient = field.zero
+        GenericGFPoly remainder = this
 
-        int denominatorLeadingTerm = other.getCoefficient(other.getDegree());
-        int inverseDenominatorLeadingTerm = field.inverse(denominatorLeadingTerm);
+        int denominatorLeadingTerm = other.getCoefficient(other.degree)
+        int inverseDenominatorLeadingTerm = field.inverse(denominatorLeadingTerm)
 
-        while (remainder.getDegree() >= other.getDegree() && !remainder.isZero()) {
-            int degreeDifference = remainder.getDegree() - other.getDegree();
-            int scale = field.multiply(remainder.getCoefficient(remainder.getDegree()), inverseDenominatorLeadingTerm);
-            GenericGFPoly term = other.multiplyByMonomial(degreeDifference, scale);
-            GenericGFPoly iterationQuotient = field.buildMonomial(degreeDifference, scale);
-            quotient = quotient.addOrSubtract(iterationQuotient);
-            remainder = remainder.addOrSubtract(term);
+        while (remainder.degree >= other.degree && !remainder.isZero()) {
+            int degreeDifference = remainder.degree - other.degree
+            int scale = field.multiply(remainder.getCoefficient(remainder.degree), inverseDenominatorLeadingTerm)
+            GenericGFPoly term = other.multiplyByMonomial(degreeDifference, scale)
+            GenericGFPoly iterationQuotient = field.buildMonomial(degreeDifference, scale)
+            quotient = quotient.addOrSubtract(iterationQuotient)
+            remainder = remainder.addOrSubtract(term)
         }
 
-        return [quotient, remainder ];
+        return [quotient, remainder] as GenericGFPoly[]
     }
 
     @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder(8 * getDegree());
+    String toString() {
+        StringBuilder result = new StringBuilder(8 * getDegree())
         for (int degree = getDegree(); degree >= 0; degree--) {
-            int coefficient = getCoefficient(degree);
+            int coefficient = getCoefficient(degree)
             if (coefficient != 0) {
                 if (coefficient < 0) {
-                    result.append(" - ");
-                    coefficient = -coefficient;
+                    result << " - "
+                    coefficient = -coefficient
                 } else {
-                    if (result.size()() > 0) {
-                        result.append(" + ");
+                    if (result.size() > 0) {
+                        result << " + "
                     }
                 }
                 if (degree == 0 || coefficient != 1) {
-                    int alphaPower = field.log(coefficient);
+                    int alphaPower = field.log(coefficient)
                     if (alphaPower == 0) {
-                        result.append('1');
+                        result << '1'
                     } else if (alphaPower == 1) {
-                        result.append('a');
+                        result << 'a'
                     } else {
-                        result.append("a^");
-                        result.append(alphaPower);
+                        result << "a^"
+                        result << alphaPower
                     }
                 }
                 if (degree != 0) {
                     if (degree == 1) {
-                        result.append('x');
+                        result << 'x'
                     } else {
-                        result.append("x^");
-                        result.append(degree);
+                        result << "x^"
+                        result << degree
                     }
                 }
             }
         }
-        return result.toString();
+        return result
     }
-
 }

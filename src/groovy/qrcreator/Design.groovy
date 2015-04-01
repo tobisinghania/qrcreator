@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2015 Tobias Singhania
  *
@@ -15,16 +13,20 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
+
+import groovy.transform.CompileStatic
 
 import java.awt.image.BufferedImage
 
 /**
  * @author Tobias Singhania
  */
-
+@CompileStatic
 abstract class Design {
-    protected int width
-    protected int height
+    final int width
+    final int height
+
     protected int inputWidth
     protected int inputHeight
     protected int qrWidth
@@ -41,31 +43,19 @@ abstract class Design {
         this.height = height
         this.quietZone = qz
     }
-    
+
     abstract BufferedImage getImage(QRCode val)
-
-
-    int getHeight() {
-        return height
-    }
-
-    int getWidth() {
-        return width
-    }
-
 
     protected void loadSizes(int inputWidth, int inputHeight) {
         this.inputWidth = inputWidth
         this.inputHeight = inputHeight
-        this.qrWidth = inputWidth + (quietZone * 2)
-        this.qrHeight = inputHeight + (quietZone * 2)
-        this.outputWidth = Math.max(width, qrWidth) as int
-        this.outputHeight = Math.max(height, qrHeight) as int
+        qrWidth = inputWidth + (quietZone * 2)
+        qrHeight = inputHeight + (quietZone * 2)
+        outputWidth = Math.max(width, qrWidth)
+        outputHeight = Math.max(height, qrHeight)
 
-        this.blockSize = Math.min(outputWidth / qrWidth, outputHeight / qrHeight) as int
-        this.leftPadding = ((outputWidth - (inputWidth * blockSize)) / 2) as int
-        this.topPadding = ((outputHeight - (inputHeight * blockSize)) / 2) as int
-
+        blockSize = Math.min((int)(outputWidth / qrWidth), (int)(outputHeight / qrHeight))
+        leftPadding = ((outputWidth - (inputWidth * blockSize)) / 2) as int
+        topPadding = ((outputHeight - (inputHeight * blockSize)) / 2) as int
     }
-
 }

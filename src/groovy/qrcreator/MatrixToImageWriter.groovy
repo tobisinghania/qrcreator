@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2009 ZXing authors
  *
@@ -15,12 +13,14 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
 
+import groovy.transform.CompileStatic
 
+import java.awt.image.BufferedImage
+import java.nio.file.Path
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.nio.file.Path;
+import javax.imageio.ImageIO
 
 /**
  * Writes a {@link BitMatrix} to {@link BufferedImage},
@@ -32,9 +32,10 @@ import java.nio.file.Path;
  * Modified for Groovy compatibility
  * @author Tobias Singhania
  */
-public  class MatrixToImageWriter {
+@CompileStatic
+class MatrixToImageWriter {
 
-    private static  MatrixToImageConfig DEFAULT_CONFIG = new MatrixToImageConfig();
+    private static final MatrixToImageConfig DEFAULT_CONFIG = new MatrixToImageConfig()
 
     private MatrixToImageWriter() {}
 
@@ -45,8 +46,8 @@ public  class MatrixToImageWriter {
      * @param matrix {@link BitMatrix} to write
      * @return {@link BufferedImage} representation of the input
      */
-    public static BufferedImage toBufferedImage(BitMatrix matrix) {
-        return toBufferedImage(matrix, DEFAULT_CONFIG);
+    static BufferedImage toBufferedImage(BitMatrix matrix) {
+        return toBufferedImage(matrix, DEFAULT_CONFIG)
     }
 
     /**
@@ -56,18 +57,18 @@ public  class MatrixToImageWriter {
      * @param config output configuration
      * @return {@link BufferedImage} representation of the input
      */
-    public static BufferedImage toBufferedImage(BitMatrix matrix, MatrixToImageConfig config) {
-        int width = matrix.getWidth();
-        int height = matrix.getHeight();
-        BufferedImage image = new BufferedImage(width, height, config.getBufferedImageColorModel());
-        int onColor = config.getPixelOnColor();
-        int offColor = config.getPixelOffColor();
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                image.setRGB(x, y, matrix.get(x, y) ? onColor : offColor);
+    static BufferedImage toBufferedImage(BitMatrix matrix, MatrixToImageConfig config) {
+        int width = matrix.width
+        int height = matrix.height
+        BufferedImage image = new BufferedImage(width, height, config.bufferedImageColorModel)
+        int onColor = config.pixelOnColor
+        int offColor = config.pixelOffColor
+        width.times { int x ->
+            height.times { int y ->
+                image.setRGB(x, y, matrix.get(x, y) ? onColor : offColor)
             }
         }
-        return image;
+        return image
     }
 
     /**
@@ -78,8 +79,8 @@ public  class MatrixToImageWriter {
      * @deprecated use {@link #writeToPath(BitMatrix, String, Path)}
      */
     @Deprecated
-    public static void writeToFile(BitMatrix matrix, String format, File file) throws IOException {
-        writeToPath(matrix, format, file.toPath());
+    static void writeToFile(BitMatrix matrix, String format, File file) throws IOException {
+        writeToPath(matrix, format, file.toPath())
     }
 
     /**
@@ -91,8 +92,8 @@ public  class MatrixToImageWriter {
      * @throws IOException if writes to the stream fail
      * @see #toBufferedImage(BitMatrix)
      */
-    public static void writeToPath(BitMatrix matrix, String format, Path file) throws IOException {
-        writeToPath(matrix, format, file, DEFAULT_CONFIG);
+    static void writeToPath(BitMatrix matrix, String format, Path file) throws IOException {
+        writeToPath(matrix, format, file, DEFAULT_CONFIG)
     }
 
     /**
@@ -104,9 +105,9 @@ public  class MatrixToImageWriter {
      * @deprecated use {@link #writeToPath(BitMatrix, String, Path, MatrixToImageConfig)}
      */
     @Deprecated
-    public static void writeToFile(BitMatrix matrix, String format, File file, MatrixToImageConfig config)
+    static void writeToFile(BitMatrix matrix, String format, File file, MatrixToImageConfig config)
             throws IOException {
-        writeToPath(matrix, format, file.toPath(), config);
+        writeToPath(matrix, format, file.toPath(), config)
     }
 
     /**
@@ -118,11 +119,11 @@ public  class MatrixToImageWriter {
      * @param config output configuration
      * @throws IOException if writes to the file fail
      */
-    public static void writeToPath(BitMatrix matrix, String format, Path file, MatrixToImageConfig config)
+    static void writeToPath(BitMatrix matrix, String format, Path file, MatrixToImageConfig config)
             throws IOException {
-        BufferedImage image = toBufferedImage(matrix, config);
+        BufferedImage image = toBufferedImage(matrix, config)
         if (!ImageIO.write(image, format, file.toFile())) {
-            throw new IOException("Could not write an image of format " + format + " to " + file);
+            throw new IOException("Could not write an image of format $format to $file")
         }
     }
 
@@ -135,8 +136,8 @@ public  class MatrixToImageWriter {
      * @throws IOException if writes to the stream fail
      * @see #toBufferedImage(BitMatrix)
      */
-    public static void writeToStream(BitMatrix matrix, String format, OutputStream stream) throws IOException {
-        writeToStream(matrix, format, stream, DEFAULT_CONFIG);
+    static void writeToStream(BitMatrix matrix, String format, OutputStream stream) throws IOException {
+        writeToStream(matrix, format, stream, DEFAULT_CONFIG)
     }
 
     /**
@@ -148,12 +149,11 @@ public  class MatrixToImageWriter {
      * @param config output configuration
      * @throws IOException if writes to the stream fail
      */
-    public static void writeToStream(BitMatrix matrix, String format, OutputStream stream, MatrixToImageConfig config)
+    static void writeToStream(BitMatrix matrix, String format, OutputStream stream, MatrixToImageConfig config)
             throws IOException {
-        BufferedImage image = toBufferedImage(matrix, config);
+        BufferedImage image = toBufferedImage(matrix, config)
         if (!ImageIO.write(image, format, stream)) {
-            throw new IOException("Could not write an image of format " + format);
+            throw new IOException("Could not write an image of format $format")
         }
     }
-
 }
