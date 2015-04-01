@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2008 ZXing authors
  *
@@ -15,8 +13,9 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
 
-
+import groovy.transform.CompileStatic
 
 /**
  * Encapsulates a Character Set ECI, according to "Extended Channel Interpretations" 5.3.1.1
@@ -27,7 +26,8 @@ package qrcreator
  * Modified for Groovy compatibility
  * @author Tobias Singhania
  */
-public enum CharacterSetECI {
+@CompileStatic
+enum CharacterSetECI {
 
     // Enum name is a Java encoding valid for java.lang and java.io
     Cp437([0,2]),
@@ -56,63 +56,56 @@ public enum CharacterSetECI {
     ASCII([27, 170], "US-ASCII"),
     Big5(28),
     GB18030(29, "GB2312", "EUC_CN", "GBK"),
-    EUC_KR(30, "EUC-KR");
+    EUC_KR(30, "EUC-KR")
 
-    private static  Map<Integer,CharacterSetECI> VALUE_TO_ECI = new HashMap<>();
-    private static  Map<String,CharacterSetECI> NAME_TO_ECI = new HashMap<>();
+    private static final Map<Integer, CharacterSetECI> VALUE_TO_ECI = [:]
+    private static final Map<String, CharacterSetECI> NAME_TO_ECI = [:]
     static {
-        for (CharacterSetECI eci : values()) {
-            for (int value : eci.values) {
-                VALUE_TO_ECI.put(value, eci);
-            }
-            NAME_TO_ECI.put(eci.name(), eci);
-            for (String name : eci.otherEncodingNames) {
-                NAME_TO_ECI.put(name, eci);
-            }
+        values().each { CharacterSetECI eci ->
+            eci.values.each { int value ->  VALUE_TO_ECI[value] = eci }
+            NAME_TO_ECI[eci.name()] = eci
+            eci.otherEncodingNames.each { String name ->  NAME_TO_ECI[name] = eci }
         }
     }
 
-    private  int[] values;
-    private  String[] otherEncodingNames;
+    private int[] values
+    private String[] otherEncodingNames
 
     CharacterSetECI(int value) {
-        this([] {value});
+        this([value] as int[])
     }
 
     CharacterSetECI(int value, String... otherEncodingNames) {
-        this.values = [] {value};
-        this.otherEncodingNames = otherEncodingNames;
+        this([value] as int[], otherEncodingNames)
     }
 
     CharacterSetECI(int[] values, String... otherEncodingNames) {
-        this.values = values;
-        this.otherEncodingNames = otherEncodingNames;
+        this.values = values
+        this.otherEncodingNames = otherEncodingNames
     }
 
-    public int getValue() {
-        return values[0];
+    int getValue() {
+        return values[0]
     }
 
     /**
      * @param value character set ECI value
-     * @return {@code CharacterSetECI} representing ECI of given value, or null if it is legal but
-     *   unsupported
+     * @return {@code CharacterSetECI} representing ECI of given value, or null if it is legal but unsupported
      * @throws InvalidPropertiesFormatException if ECI value is invalid
      */
-    public static CharacterSetECI getCharacterSetECIByValue(int value) throws InvalidPropertiesFormatException {
+    static CharacterSetECI getCharacterSetECIByValue(int value) throws InvalidPropertiesFormatException {
         if (value < 0 || value >= 900) {
-            throw new InvalidPropertiesFormatException()
+            throw new InvalidPropertiesFormatException('value must be between 0 and 900')
         }
-        return VALUE_TO_ECI.get(value);
+        return VALUE_TO_ECI[value]
     }
 
     /**
      * @param name character set ECI encoding name
      * @return CharacterSetECI representing ECI for character encoding, or null if it is legal
-     *   but unsupported
+     *         but unsupported
      */
-    public static CharacterSetECI getCharacterSetECIByName(String name) {
-        return NAME_TO_ECI.get(name);
+    static CharacterSetECI getCharacterSetECIByName(String name) {
+        return NAME_TO_ECI[name]
     }
-
 }

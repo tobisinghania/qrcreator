@@ -1,35 +1,33 @@
 package qrcreator
 
+import java.nio.file.FileSystems
+
 import org.junit.Test
 
-import javax.imageio.ImageIO
-import java.awt.image.BufferedImage
-import java.nio.file.FileSystems
 /**
- * Created by tobi on 29.03.15.
+ * @author tobi
  */
 class QrGenerationTest {
 
+    private writer = new ImageWriter()
+
     @Test
-    def void testqrCodeGeneratorText() {
-        def writer = new ImageWriter()
+    void testqrCodeGeneratorText() {
         def bitmatrix = writer.encode("This is a test string, which tells a story" +
-                " without any meaning or point, therefore leaving the reader " +
-                " as uninformed as he has been", 800, 800, "H");
+            " without any meaning or point, therefore leaving the reader " +
+            " as uninformed as he has been", 800, 800, "H")
         MatrixToImageWriter.writeToPath(bitmatrix, "png",
-                FileSystems.getDefault().getPath(".", "qrcode.png"))
+            FileSystems.getDefault().getPath(".", "qrcode.png"))
         def file = new File('qrcode.png')
         assert file.exists()
 //        file.delete()
     }
 
     @Test
-    def void testqrCodeGeneratorTextDesign() {
-        def writer = new ImageWriter()
+    void testqrCodeGeneratorTextDesign() {
         def img = writer.encode("My test string@2349087234987)+",
-                "H", new LogoDesign("images/logo.png", 800,800, 21,21));
-        assert img.getHeight()==800
-        assert img.getWidth() ==800
+            "H", new LogoDesign("images/logo.png", 800,800, 21,21))
+        assert img.height == 800
+        assert img.width == 800
     }
-
 }

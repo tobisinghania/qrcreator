@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: tobi
-  Date: 29.03.15
-  Time: 23:16
---%>
-
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html>
 <head>
@@ -38,7 +31,6 @@
             background-color:#EEEEFF;
             overflow:auto;
             padding:10px;
-
         }
         .codebox code {
             font-size:0.9em;
@@ -78,7 +70,6 @@
                      text="Another messages"/>
         <br/>
 
-
         <h3>Create QR code with custom logo in the center and specify the QR code error correction level</h3>
         <b>@param width</b> The width (in px) of the QR code (default 200px)<br/>
         <b>@param height</b> The height (in px) of the QR code (default 200px)<br/>
@@ -95,8 +86,6 @@
                      logo="http://upload.wikimedia.org/wikipedia/commons/2/28/Ubuntu-sur.png" ecl="H"
                      text="Last but not least"/>
         <br/>
-
-
 
     </div>
 </div>

@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2008 ZXing authors
  *
@@ -15,24 +13,18 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
 
+import groovy.transform.CompileStatic
 
- class BlockPair {
+@CompileStatic
+class BlockPair {
 
-    private  byte[] dataBytes;
-    private  byte[] errorCorrectionBytes;
+    final byte[] dataBytes
+    final byte[] errorCorrectionBytes
 
     BlockPair(byte[] data, byte[] errorCorrection) {
-        dataBytes = data;
-        errorCorrectionBytes = errorCorrection;
+        dataBytes = data
+        errorCorrectionBytes = errorCorrection
     }
-
-    public byte[] getDataBytes() {
-        return dataBytes;
-    }
-
-    public byte[] getErrorCorrectionBytes() {
-        return errorCorrectionBytes;
-    }
-
 }

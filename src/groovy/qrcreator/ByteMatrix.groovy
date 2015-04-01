@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2008 ZXing authors
  *
@@ -16,6 +14,10 @@ package qrcreator
  * limitations under the License.
  */
 
+package qrcreator
+
+import groovy.transform.CompileStatic
+
 /**
  * JAVAPORT: The original code was a 2D array of ints, but since it only ever gets assigned
  * -1, 0, and 1, I'm going to use less memory and go with bytes.
@@ -25,77 +27,59 @@ package qrcreator
  * Modified for Groovy compatibility
  * @author Tobias Singhania
  */
-public  class ByteMatrix {
-
-    private  byte[][] bytes;
-    private  int width;
-    private  int height;
-
-    public ByteMatrix(int width, int height) {
-        bytes = new byte[height][width];
-        this.width = width;
-        this.height = height;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public byte get(int x, int y) {
-        return bytes[y][x];
-    }
+@CompileStatic
+class ByteMatrix {
 
     /**
-     * @return an internal representation as bytes, in row-major order. array[y][x] represents point (x,y)
+     * an internal representation as bytes, in row-major order. array[y][x] represents point (x,y)
      */
-    public byte[][] getArray() {
-        return bytes;
+    final byte[][] array
+    final int width
+    final int height
+
+    ByteMatrix(int width, int height) {
+        array = new byte[height][width]
+        this.width = width
+        this.height = height
     }
 
-    public void set(int x, int y, byte value) {
-        bytes[y][x] = value;
+    byte get(int x, int y) {
+        return array[y][x]
     }
 
-    public void set(int x, int y, int value) {
-        bytes[y][x] = (byte) value;
+    void set(int x, int y, byte value) {
+        array[y][x] = value
     }
 
-    public void set(int x, int y, boolean value) {
-        bytes[y][x] = (byte) (value ? 1 : 0);
+    void set(int x, int y, int value) {
+        array[y][x] = (byte) value
     }
 
-    public void clear(byte value) {
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-                bytes[y][x] = value;
+    void set(int x, int y, boolean value) {
+        array[y][x] = (byte) (value ? 1 : 0)
+    }
+
+    void clear(byte value) {
+        height.times { int y ->
+            width.times { int x ->
+                array[y][x] = value
             }
         }
     }
 
     @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder(2 * width * height + 2);
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-                switch (bytes[y][x]) {
-                    case 0:
-                        result.append(" 0");
-                        break;
-                    case 1:
-                        result.append(" 1");
-                        break;
-                    default:
-                        result.append("  ");
-                        break;
+    String toString() {
+        StringBuilder result = new StringBuilder(2 * width * height + 2)
+        height.times { int y ->
+            width.times { int x ->
+                switch (array[y][x]) {
+                    case 0:  result << " 0"; break
+                    case 1:  result << " 1"; break
+                    default: result << "  "
                 }
             }
-            result.append('\n');
+            result << '\n'
         }
-        return result.toString();
+        return result
     }
-
 }

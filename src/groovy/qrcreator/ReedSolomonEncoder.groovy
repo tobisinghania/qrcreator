@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2008 ZXing authors
  *
@@ -15,56 +13,57 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
+
+import groovy.transform.CompileStatic
+
 /**
  * <p>Implements Reed-Solomon enbcoding, as the name implies.</p>
  *
  * @author Sean Owen
  * @author William Rucklidge
  */
-public  class ReedSolomonEncoder {
+@CompileStatic
+class ReedSolomonEncoder {
 
-    private  GenericGF field;
-    private  List<GenericGFPoly> cachedGenerators;
+    private GenericGF field
+    private List<GenericGFPoly> cachedGenerators = []
 
-    public ReedSolomonEncoder(GenericGF field) {
-        this.field = field;
-        this.cachedGenerators = new ArrayList<>();
-        cachedGenerators.add(new GenericGFPoly(field,[1] as int[]));
+    ReedSolomonEncoder(GenericGF field) {
+        this.field = field
+        cachedGenerators << new GenericGFPoly(field,[1] as int[])
     }
 
     private GenericGFPoly buildGenerator(int degree) {
         if (degree >= cachedGenerators.size()) {
-            GenericGFPoly lastGenerator = cachedGenerators.get(cachedGenerators.size() - 1);
+            GenericGFPoly lastGenerator = cachedGenerators[-1]
             for (int d = cachedGenerators.size(); d <= degree; d++) {
                 GenericGFPoly nextGenerator = lastGenerator.multiply(
-                        new GenericGFPoly(field, [ 1, field.exp(d - 1 + field.getGeneratorBase()) ]  as int[]));
-                cachedGenerators.add(nextGenerator);
-                lastGenerator = nextGenerator;
+                        new GenericGFPoly(field, [ 1, field.exp(d - 1 + field.generatorBase) ]  as int[]))
+                cachedGenerators << nextGenerator
+                lastGenerator = nextGenerator
             }
         }
-        return cachedGenerators.get(degree);
+        return cachedGenerators[degree]
     }
 
-    public void encode(int[] toEncode, int ecBytes) {
+    void encode(int[] toEncode, int ecBytes) {
         if (ecBytes == 0) {
-            throw new IllegalArgumentException("No error correction bytes");
+            throw new IllegalArgumentException("No error correction bytes")
         }
-        int dataBytes = toEncode.size() - ecBytes;
+        int dataBytes = toEncode.size() - ecBytes
         if (dataBytes <= 0) {
-            throw new IllegalArgumentException("No data bytes provided");
+            throw new IllegalArgumentException("No data bytes provided")
         }
-        GenericGFPoly generator = buildGenerator(ecBytes);
-        int[] infoCoefficients = new int[dataBytes];
-        System.arraycopy(toEncode, 0, infoCoefficients, 0, dataBytes);
-        GenericGFPoly info = new GenericGFPoly(field, infoCoefficients);
-        info = info.multiplyByMonomial(ecBytes, 1);
-        GenericGFPoly remainder = info.divide(generator)[1];
-        int[] coefficients = remainder.getCoefficients();
-        int numZeroCoefficients = ecBytes - coefficients.size();
-        for (int i = 0; i < numZeroCoefficients; i++) {
-            toEncode[dataBytes + i] = 0;
-        }
-        System.arraycopy(coefficients, 0, toEncode, dataBytes + numZeroCoefficients, coefficients.size());
+        GenericGFPoly generator = buildGenerator(ecBytes)
+        int[] infoCoefficients = new int[dataBytes]
+        System.arraycopy(toEncode, 0, infoCoefficients, 0, dataBytes)
+        GenericGFPoly info = new GenericGFPoly(field, infoCoefficients)
+        info = info.multiplyByMonomial(ecBytes, 1)
+        GenericGFPoly remainder = info.divide(generator)[1]
+        int[] coefficients = remainder.coefficients
+        int numZeroCoefficients = ecBytes - coefficients.size()
+        numZeroCoefficients.times { int i -> toEncode[dataBytes + i] = 0 }
+        System.arraycopy(coefficients, 0, toEncode, dataBytes + numZeroCoefficients, coefficients.size())
     }
-
 }

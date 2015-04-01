@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2008 ZXing authors
  *
@@ -15,17 +13,20 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
+
+import groovy.transform.CompileStatic
 
 /**
  * These are a set of hints that you may pass to Writers to specify their behavior.
  *
  * @author dswitkin@google.com (Daniel Switkin)
  *
- *
  * Modified for Groovy compatibility
  * @author Tobias Singhania
  */
-public enum EncodeHintType {
+@CompileStatic
+enum EncodeHintType {
 
     /**
      * Specifies what degree of error correction to use, for example in QR Codes.
@@ -39,12 +40,12 @@ public enum EncodeHintType {
     /**
      * Specifies what character encoding to use where applicable (type {@link String})
      */
-            CHARACTER_SET,
+    CHARACTER_SET,
 
     /**
      * Specifies the matrix shape for Data Matrix (type {@link com.google.zxing.datamatrix.encoder.SymbolShapeHint})
      */
-            DATA_MATRIX_SHAPE,
+    DATA_MATRIX_SHAPE,
 
     /**
      * Specifies a minimum barcode size (type {@link Dimension}). Only applicable to Data Matrix now.
@@ -52,40 +53,40 @@ public enum EncodeHintType {
      * @deprecated use width/height params in
      * {@link com.google.zxing.datamatrix.DataMatrixWriter#encode(String, BarcodeFormat, int, int)}
      */
-            @Deprecated
-            MIN_SIZE,
+    @Deprecated
+    MIN_SIZE,
 
     /**
      * Specifies a maximum barcode size (type {@link Dimension}). Only applicable to Data Matrix now.
      *
      * @deprecated without replacement
      */
-            @Deprecated
-            MAX_SIZE,
+    @Deprecated
+    MAX_SIZE,
 
     /**
      * Specifies margin, in pixels, to use when generating the barcode. The meaning can vary
      * by format; for example it controls margin before and after the barcode horizontally for
      * most 1D formats. (Type {@link Integer}).
      */
-            MARGIN,
+    MARGIN,
 
     /**
      * Specifies whether to use compact mode for PDF417 (type {@link Boolean}).
      */
-            PDF417_COMPACT,
+    PDF417_COMPACT,
 
     /**
      * Specifies what compaction mode to use for PDF417 (type
      * {@link com.google.zxing.pdf417.encoder.Compaction Compaction}).
      */
-            PDF417_COMPACTION,
+    PDF417_COMPACTION,
 
     /**
      * Specifies the minimum and maximum number of rows and columns for PDF417 (type
      * {@link com.google.zxing.pdf417.encoder.Dimensions Dimensions}).
      */
-            PDF417_DIMENSIONS,
+    PDF417_DIMENSIONS,
 
     /**
      * Specifies the required number of layers for an Aztec code:
@@ -93,5 +94,5 @@ public enum EncodeHintType {
      *   0 indicates to use the minimum number of layers (the default)
      *   a positive number (1, 2, .. 32) specifies a normaol (non-compact) Aztec code
      */
-            AZTEC_LAYERS,
+    AZTEC_LAYERS,
 }

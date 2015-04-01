@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package qrcreator
+
+import groovy.transform.CompileStatic
 
 /**
  * <p>See ISO 18004:2006, 6.5.1. This enum encapsulates the four error correction levels
@@ -25,35 +26,33 @@ package qrcreator
  * Modified for Groovy compatibility
  * @author Tobias Singhania
  */
-
+@CompileStatic
 enum ErrorCorrectionLevel {
     /** L = ~7% correction */
     L(0x01),
     /** M = ~15% correction */
-            M(0x00),
+    M(0x00),
     /** Q = ~25% correction */
-            Q(0x03),
+    Q(0x03),
     /** H = ~30% correction */
-            H(0x02);
+    H(0x02)
 
-    static BITS = [M,L,H,Q] as ErrorCorrectionLevel[]
-    int bits
+    static final ErrorCorrectionLevel[] BITS = [M,L,H,Q]
+
+    final int bits
 
     ErrorCorrectionLevel(int bits) {
         this.bits = bits
-    }
-
-    int getBits() {
-        return bits
     }
 
     /**
      * @param bits bits int containing the two bits encoding a QR Code's error correction level
      * @return ErrorCorrectionLevel representing the encoded error correction leve
      */
-    def static ErrorCorrectionLevel forBits(int bits) {
-        if (bits < 0 || bits >= BITS.size())
+    static ErrorCorrectionLevel forBits(int bits) {
+        if (bits < 0 || bits >= BITS.size()) {
             throw new IllegalArgumentException()
+        }
         return BITS[bits]
     }
 }

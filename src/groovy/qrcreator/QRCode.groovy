@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2008 ZXing authors
  *
@@ -15,7 +13,9 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
 
+import groovy.transform.CompileStatic
 
 /**
  * @author satorux@google.com (Satoru Takabayashi) - creator
@@ -24,85 +24,36 @@ package qrcreator
  * Modified for Groovy compatibility
  * @author Tobias Singhania
  */
-public  class QRCode {
+@CompileStatic
+class QRCode {
 
-    public static  int NUM_MASK_PATTERNS = 8;
+    static final int NUM_MASK_PATTERNS = 8
 
-    private Mode mode;
-    private ErrorCorrectionLevel ecLevel;
-    private Version version;
-    private int maskPattern;
-    private ByteMatrix matrix;
-
-    public QRCode() {
-        maskPattern = -1;
-    }
-
-    public Mode getMode() {
-        return mode;
-    }
-
-    public ErrorCorrectionLevel getECLevel() {
-        return ecLevel;
-    }
-
-    public Version getVersion() {
-        return version;
-    }
-
-    public int getMaskPattern() {
-        return maskPattern;
-    }
-
-    public ByteMatrix getMatrix() {
-        return matrix;
-    }
+    Mode mode
+    ErrorCorrectionLevel ECLevel
+    Version version
+    int maskPattern = -1
+    ByteMatrix matrix
 
     @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder(200);
-        result.append("<<\n");
-        result.append(" mode: ");
-        result.append(mode);
-        result.append("\n ecLevel: ");
-        result.append(ecLevel);
-        result.append("\n version: ");
-        result.append(version);
-        result.append("\n maskPattern: ");
-        result.append(maskPattern);
-        if (matrix == null) {
-            result.append("\n matrix: null\n");
+    String toString() {
+        StringBuilder result = new StringBuilder(200)
+        result << "<<\n"
+        result << " mode: " << mode
+        result << "\n ecLevel: " << ECLevel
+        result << "\n version: " << version
+        result << "\n maskPattern: " << maskPattern
+        if (matrix) {
+            result << "\n matrix:\n" << matrix
         } else {
-            result.append("\n matrix:\n");
-            result.append(matrix);
+            result << "\n matrix: null\n"
         }
-        result.append(">>\n");
-        return result.toString();
-    }
-
-    public void setMode(Mode value) {
-        mode = value;
-    }
-
-    public void setECLevel(ErrorCorrectionLevel value) {
-        ecLevel = value;
-    }
-
-    public void setVersion(Version version) {
-        this.version = version;
-    }
-
-    public void setMaskPattern(int value) {
-        maskPattern = value;
-    }
-
-    public void setMatrix(ByteMatrix value) {
-        matrix = value;
+        result << ">>\n"
+        return result
     }
 
     // Check if "mask_pattern" is valid.
-    public static boolean isValidMaskPattern(int maskPattern) {
-        return maskPattern >= 0 && maskPattern < NUM_MASK_PATTERNS;
+    static boolean isValidMaskPattern(int maskPattern) {
+        return maskPattern >= 0 && maskPattern < NUM_MASK_PATTERNS
     }
-
 }

@@ -1,5 +1,3 @@
-package qrcreator
-
 /*
  * Copyright 2008 ZXing authors
  *
@@ -15,7 +13,9 @@ package qrcreator
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package qrcreator
 
+import groovy.transform.CompileStatic
 
 /**
  * @author satorux@google.com (Satoru Takabayashi) - creator
@@ -24,32 +24,33 @@ package qrcreator
  * Modified for Groovy compatibility
  * @author Tobias Singhania
  */
- class MatrixUtil {
+@CompileStatic
+class MatrixUtil {
 
     private MatrixUtil() {
         // do nothing
     }
 
-    private static  int[][] POSITION_DETECTION_PATTERN =  [
+    private static final int[][] POSITION_DETECTION_PATTERN = [
         [1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 1],
         [1, 0, 1, 1, 1, 0, 1],
         [1, 0, 1, 1, 1, 0, 1],
         [1, 0, 1, 1, 1, 0, 1],
         [1, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1],
-    ]
+        [1, 1, 1, 1, 1, 1, 1]
+    ] as int[][]
 
-    private static  int[][] POSITION_ADJUSTMENT_PATTERN = [
+    private static final int[][] POSITION_ADJUSTMENT_PATTERN = [
         [1, 1, 1, 1, 1],
         [1, 0, 0, 0, 1],
         [1, 0, 1, 0, 1],
         [1, 0, 0, 0, 1],
         [1, 1, 1, 1, 1],
-    ];
+    ] as int[][]
 
     // From Appendix E. Table 1, JIS0510X:2004 (p 71). The table was double-checked by komatsu.
-    private static  int[][] POSITION_ADJUSTMENT_PATTERN_COORDINATE_TABLE = [
+    private static final int[][] POSITION_ADJUSTMENT_PATTERN_COORDINATE_TABLE = [
         [-1, -1, -1, -1,  -1,  -1,  -1],  // Version 1
         [ 6, 18, -1, -1,  -1,  -1,  -1],  // Version 2
         [ 6, 22, -1, -1,  -1,  -1,  -1],  // Version 3
@@ -89,11 +90,11 @@ package qrcreator
         [ 6, 28, 54, 80, 106, 132, 158],  // Version 37
         [ 6, 32, 58, 84, 110, 136, 162],  // Version 38
         [ 6, 26, 54, 82, 110, 138, 166],  // Version 39
-        [ 6, 30, 58, 86, 114, 142, 170],  // Version 40
-    ]
+        [ 6, 30, 58, 86, 114, 142, 170]  // Version 40
+    ] as int[][]
 
     // Type info cells at the left top corner.
-    private static  int[][] TYPE_INFO_COORDINATES = [
+    private static final int[][] TYPE_INFO_COORDINATES = [
         [8, 0],
         [8, 1],
         [8, 2],
@@ -108,39 +109,36 @@ package qrcreator
         [3, 8],
         [2, 8],
         [1, 8],
-        [0, 8],
-    ]
+        [0, 8]
+    ] as int[][]
 
     // From Appendix D in JISX0510:2004 (p. 67)
-    private static  int VERSION_INFO_POLY = 0x1f25;  // 1 1111 0010 0101
+    private static final int VERSION_INFO_POLY = 0x1f25 // 1 1111 0010 0101
 
     // From Appendix C in JISX0510:2004 (p.65).
-    private static  int TYPE_INFO_POLY = 0x537;
-    private static  int TYPE_INFO_MASK_PATTERN = 0x5412;
+    private static final int TYPE_INFO_POLY = 0x537
+    private static final int TYPE_INFO_MASK_PATTERN = 0x5412
 
     // Set all cells to -1.  -1 means that the cell is empty (not set yet).
     //
     // JAVAPORT: We shouldn't need to do this at all. The code should be rewritten to begin encoding
     // with the ByteMatrix initialized all to zero.
     static void clearMatrix(ByteMatrix matrix) {
-        matrix.clear((byte) -1);
+        matrix.clear((byte) -1)
     }
 
     // Build 2D matrix of QR Code from "dataBits" with "ecLevel", "version" and "getMaskPattern". On
     // success, store the result in "matrix" and return true.
-    static void buildMatrix(BitArray dataBits,
-                            ErrorCorrectionLevel ecLevel,
-                            Version version,
-                            int maskPattern,
-                            ByteMatrix matrix) throws IOException {
-        clearMatrix(matrix);
-        embedBasicPatterns(version, matrix);
+    static void buildMatrix(BitArray dataBits, ErrorCorrectionLevel ecLevel, Version version,
+                            int maskPattern, ByteMatrix matrix) throws IOException {
+        clearMatrix(matrix)
+        embedBasicPatterns(version, matrix)
         // Type information appear with any version.
-        embedTypeInfo(ecLevel, maskPattern, matrix);
+        embedTypeInfo(ecLevel, maskPattern, matrix)
         // Version info appear if version >= 7.
-        maybeEmbedVersionInfo(version, matrix);
+        maybeEmbedVersionInfo(version, matrix)
         // Data should be embedded at end.
-        embedDataBits(dataBits, maskPattern, matrix);
+        embedDataBits(dataBits, maskPattern, matrix)
     }
 
     // Embed basic patterns. On success, modify the matrix and return true.
@@ -151,65 +149,66 @@ package qrcreator
     // - Position adjustment patterns, if need be
     static void embedBasicPatterns(Version version, ByteMatrix matrix) throws IOException {
         // Let's get started with embedding big squares at corners.
-        embedPositionDetectionPatternsAndSeparators(matrix);
+        embedPositionDetectionPatternsAndSeparators(matrix)
         // Then, embed the dark dot at the left bottom corner.
-        embedDarkDotAtLeftBottomCorner(matrix);
+        embedDarkDotAtLeftBottomCorner(matrix)
 
         // Position adjustment patterns appear if version >= 2.
-        maybeEmbedPositionAdjustmentPatterns(version, matrix);
+        maybeEmbedPositionAdjustmentPatterns(version, matrix)
         // Timing patterns should be embedded after position adj. patterns.
-        embedTimingPatterns(matrix);
+        embedTimingPatterns(matrix)
     }
 
     // Embed type information. On success, modify the matrix.
     static void embedTypeInfo(ErrorCorrectionLevel ecLevel, int maskPattern, ByteMatrix matrix)
             throws IOException {
-        BitArray typeInfoBits = new BitArray();
-        makeTypeInfoBits(ecLevel, maskPattern, typeInfoBits);
+        BitArray typeInfoBits = new BitArray()
+        makeTypeInfoBits(ecLevel, maskPattern, typeInfoBits)
 
-        for (int i = 0; i < typeInfoBits.getSize(); ++i) {
-            // Place bits in LSB to MSB order.  LSB (least significant bit) is the last value in
-            // "typeInfoBits".
-            boolean bit = typeInfoBits.get(typeInfoBits.getSize() - 1 - i);
+        int size = typeInfoBits.size
+        size.times { int i ->
+            // Place bits in LSB to MSB order.  LSB (least significant bit) is the last value in "typeInfoBits".
+            boolean bit = typeInfoBits.get(size - 1 - i)
 
             // Type info bits at the left top corner. See 8.9 of JISX0510:2004 (p.46).
-            int x1 = TYPE_INFO_COORDINATES[i][0];
-            int y1 = TYPE_INFO_COORDINATES[i][1];
-            matrix.set(x1, y1, bit);
+            int x1 = TYPE_INFO_COORDINATES[i][0]
+            int y1 = TYPE_INFO_COORDINATES[i][1]
+            matrix.set(x1, y1, bit)
 
+            int x2
+            int y2
             if (i < 8) {
                 // Right top corner.
-                int x2 = matrix.getWidth() - i - 1;
-                int y2 = 8;
-                matrix.set(x2, y2, bit);
+                x2 = matrix.width - i - 1
+                y2 = 8
             } else {
                 // Left bottom corner.
-                int x2 = 8;
-                int y2 = matrix.getHeight() - 7 + (i - 8);
-                matrix.set(x2, y2, bit);
+                x2 = 8
+                y2 = matrix.height - 7 + (i - 8)
             }
+            matrix.set(x2, y2, bit)
         }
     }
 
     // Embed version information if need be. On success, modify the matrix and return true.
     // See 8.10 of JISX0510:2004 (p.47) for how to embed version information.
     static void maybeEmbedVersionInfo(Version version, ByteMatrix matrix) throws IOException {
-        if (version.getVersionNumber() < 7) {  // Version info is necessary if version >= 7.
-            return;  // Don't need version info.
+        if (version.versionNumber < 7) {  // Version info is necessary if version >= 7.
+            return  // Don't need version info.
         }
-        BitArray versionInfoBits = new BitArray();
-        makeVersionInfoBits(version, versionInfoBits);
+        BitArray versionInfoBits = new BitArray()
+        makeVersionInfoBits(version, versionInfoBits)
 
-        int bitIndex = 6 * 3 - 1;  // It will decrease from 17 to 0.
-        for (int i = 0; i < 6; ++i) {
-            for (int j = 0; j < 3; ++j) {
+        int bitIndex = 6 * 3 - 1  // It will decrease from 17 to 0.
+        6.times { int i ->
+            3.times { int j ->
                 // Place bits in LSB (least significant bit) to MSB order.
-                boolean bit = versionInfoBits.get(bitIndex);
-                bitIndex--;
+                boolean bit = versionInfoBits.get(bitIndex)
+                bitIndex--
                 // Left bottom corner.
-                matrix.set(i, matrix.getHeight() - 11 + j, bit);
+                matrix.set(i, matrix.height - 11 + j, bit)
                 // Right bottom corner.
-                matrix.set(matrix.getHeight() - 11 + j, i, bit);
+                matrix.set(matrix.height - 11 + j, i, bit)
             }
         }
     }
@@ -217,50 +216,49 @@ package qrcreator
     // Embed "dataBits" using "getMaskPattern". On success, modify the matrix and return true.
     // For debugging purposes, it skips masking process if "getMaskPattern" is -1.
     // See 8.7 of JISX0510:2004 (p.38) for how to embed data bits.
-    static void embedDataBits(BitArray dataBits, int maskPattern, ByteMatrix matrix)
-            throws IOException {
-        int bitIndex = 0;
-        int direction = -1;
+    static void embedDataBits(BitArray dataBits, int maskPattern, ByteMatrix matrix) throws IOException {
+        int bitIndex = 0
+        int direction = -1
         // Start from the right bottom cell.
-        int x = matrix.getWidth() - 1;
-        int y = matrix.getHeight() - 1;
+        int x = matrix.width - 1
+        int y = matrix.height - 1
         while (x > 0) {
             // Skip the vertical timing pattern.
             if (x == 6) {
-                x -= 1;
+                x -= 1
             }
-            while (y >= 0 && y < matrix.getHeight()) {
-                for (int i = 0; i < 2; ++i) {
-                    int xx = x - i;
+            while (y >= 0 && y < matrix.height) {
+                2.times { int i ->
+                    int xx = x - i
                     // Skip the cell if it's not empty.
                     if (!isEmpty(matrix.get(xx, y))) {
-                        continue;
+                        return
                     }
-                    boolean bit;
-                    if (bitIndex < dataBits.getSize()) {
-                        bit = dataBits.get(bitIndex);
-                        ++bitIndex;
+                    boolean bit
+                    if (bitIndex < dataBits.size) {
+                        bit = dataBits.get(bitIndex)
+                        ++bitIndex
                     } else {
                         // Padding bit. If there is no bit left, we'll fill the left cells with 0, as described
                         // in 8.4.9 of JISX0510:2004 (p. 24).
-                        bit = false;
+                        bit = false
                     }
 
                     // Skip masking if mask_pattern is -1.
                     if (maskPattern != -1 && MaskUtil.getDataMaskBit(maskPattern, xx, y)) {
-                        bit = !bit;
+                        bit = !bit
                     }
-                    matrix.set(xx, y, bit);
+                    matrix.set(xx, y, bit)
                 }
-                y += direction;
+                y += direction
             }
-            direction = -direction;  // Reverse the direction.
-            y += direction;
-            x -= 2;  // Move to the left.
+            direction = -direction  // Reverse the direction.
+            y += direction
+            x -= 2  // Move to the left.
         }
         // All bits should be consumed.
-        if (bitIndex != dataBits.getSize()) {
-            throw new IOException("Not all bits consumed: " + bitIndex + '/' + dataBits.getSize());
+        if (bitIndex != dataBits.size) {
+            throw new IOException("Not all bits consumed: $bitIndex/$dataBits.size")
         }
     }
 
@@ -270,12 +268,12 @@ package qrcreator
     // - findMSBSet(1) => 1
     // - findMSBSet(255) => 8
     static int findMSBSet(int value) {
-        int numDigits = 0;
+        int numDigits = 0
         while (value != 0) {
-            value >>>= 1;
-            ++numDigits;
+            value >>>= 1
+            ++numDigits
         }
-        return numDigits;
+        return numDigits
     }
 
     // Calculate BCH (Bose-Chaudhuri-Hocquenghem) code for "value" using polynomial "poly". The BCH
@@ -305,18 +303,18 @@ package qrcreator
     // operations. We don't care if cofficients are positive or negative.
     static int calculateBCHCode(int value, int poly) {
         if (poly == 0) {
-            throw new IllegalArgumentException("0 polynomial");
+            throw new IllegalArgumentException("0 polynomial")
         }
         // If poly is "1 1111 0010 0101" (version info poly), msbSetInPoly is 13. We'll subtract 1
         // from 13 to make it 12.
-        int msbSetInPoly = findMSBSet(poly);
-        value <<= msbSetInPoly - 1;
+        int msbSetInPoly = findMSBSet(poly)
+        value <<= msbSetInPoly - 1
         // Do the division business using exclusive-or operations.
         while (findMSBSet(value) >= msbSetInPoly) {
-            value ^= poly << (findMSBSet(value) - msbSetInPoly);
+            value ^= poly << (findMSBSet(value) - msbSetInPoly)
         }
         // Now the "value" is the remainder (i.e. the BCH code)
-        return value;
+        return value
     }
 
     // Make bit vector of type information. On success, store the result in "bits" and return true.
@@ -325,83 +323,81 @@ package qrcreator
     static void makeTypeInfoBits(ErrorCorrectionLevel ecLevel, int maskPattern, BitArray bits)
             throws IOException {
         if (!QRCode.isValidMaskPattern(maskPattern)) {
-            throw new IOException("Invalid mask pattern");
+            throw new IOException("Invalid mask pattern")
         }
-        int typeInfo = (ecLevel.getBits() << 3) | maskPattern;
-        bits.appendBits(typeInfo, 5);
+        int typeInfo = (ecLevel.bits << 3) | maskPattern
+        bits.appendBits(typeInfo, 5)
 
-        int bchCode = calculateBCHCode(typeInfo, TYPE_INFO_POLY);
-        bits.appendBits(bchCode, 10);
+        int bchCode = calculateBCHCode(typeInfo, TYPE_INFO_POLY)
+        bits.appendBits(bchCode, 10)
 
-        BitArray maskBits = new BitArray();
-        maskBits.appendBits(TYPE_INFO_MASK_PATTERN, 15);
-        bits.xor(maskBits);
+        BitArray maskBits = new BitArray()
+        maskBits.appendBits(TYPE_INFO_MASK_PATTERN, 15)
+        bits.xor(maskBits)
 
-        if (bits.getSize() != 15) {  // Just in case.
-            throw new IOException("should not happen but we got: " + bits.getSize());
+        if (bits.size != 15) {  // Just in case.
+            throw new IOException("should not happen but we got: $bits.size")
         }
     }
 
     // Make bit vector of version information. On success, store the result in "bits" and return true.
     // See 8.10 of JISX0510:2004 (p.45) for details.
     static void makeVersionInfoBits(Version version, BitArray bits) throws IOException {
-        bits.appendBits(version.getVersionNumber(), 6);
-        int bchCode = calculateBCHCode(version.getVersionNumber(), VERSION_INFO_POLY);
-        bits.appendBits(bchCode, 12);
+        bits.appendBits(version.versionNumber, 6)
+        int bchCode = calculateBCHCode(version.versionNumber, VERSION_INFO_POLY)
+        bits.appendBits(bchCode, 12)
 
-        if (bits.getSize() != 18) {  // Just in case.
-            throw new IOException("should not happen but we got: " + bits.getSize());
+        if (bits.size != 18) {  // Just in case.
+            throw new IOException("should not happen but we got: $bits.size")
         }
     }
 
     // Check if "value" is empty.
     private static boolean isEmpty(int value) {
-        return value == -1;
+        return value == -1
     }
 
     private static void embedTimingPatterns(ByteMatrix matrix) {
         // -8 is for skipping position detection patterns (size 7), and two horizontal/vertical
         // separation patterns (size 1). Thus, 8 = 7 + 1.
-        for (int i = 8; i < matrix.getWidth() - 8; ++i) {
-            int bit = (i + 1) % 2;
+        for (int i = 8; i < matrix.width - 8; ++i) {
+            int bit = (i + 1) % 2
             // Horizontal line.
             if (isEmpty(matrix.get(i, 6))) {
-                matrix.set(i, 6, bit);
+                matrix.set(i, 6, bit)
             }
             // Vertical line.
             if (isEmpty(matrix.get(6, i))) {
-                matrix.set(6, i, bit);
+                matrix.set(6, i, bit)
             }
         }
     }
 
     // Embed the lonely dark dot at left bottom corner. JISX0510:2004 (p.46)
     private static void embedDarkDotAtLeftBottomCorner(ByteMatrix matrix) throws IOException {
-        if (matrix.get(8, matrix.getHeight() - 8) == 0) {
-            throw new IOException();
+        if (matrix.get(8, matrix.height - 8) == 0) {
+            throw new IOException()
         }
-        matrix.set(8, matrix.getHeight() - 8, 1);
+        matrix.set(8, matrix.height - 8, 1)
     }
 
-    private static void embedHorizontalSeparationPattern(int xStart,
-                                                         int yStart,
+    private static void embedHorizontalSeparationPattern(int xStart, int yStart,
                                                          ByteMatrix matrix) throws IOException {
-        for (int x = 0; x < 8; ++x) {
+        8.times { int x ->
             if (!isEmpty(matrix.get(xStart + x, yStart))) {
-                throw new IOException();
+                throw new IOException()
             }
-            matrix.set(xStart + x, yStart, 0);
+            matrix.set(xStart + x, yStart, 0)
         }
     }
 
-    private static void embedVerticalSeparationPattern(int xStart,
-                                                       int yStart,
+    private static void embedVerticalSeparationPattern(int xStart, int yStart,
                                                        ByteMatrix matrix) throws IOException {
-        for (int y = 0; y < 7; ++y) {
+        7.times { int y ->
             if (!isEmpty(matrix.get(xStart, yStart + y))) {
-                throw new IOException();
+                throw new IOException()
             }
-            matrix.set(xStart, yStart + y, 0);
+            matrix.set(xStart, yStart + y, 0)
         }
     }
 
@@ -409,17 +405,17 @@ package qrcreator
     // almost identical, since we cannot write a function that takes 2D arrays in different sizes in
     // C/C++. We should live with the fact.
     private static void embedPositionAdjustmentPattern(int xStart, int yStart, ByteMatrix matrix) {
-        for (int y = 0; y < 5; ++y) {
-            for (int x = 0; x < 5; ++x) {
-                matrix.set(xStart + x, yStart + y, POSITION_ADJUSTMENT_PATTERN[y][x]);
+        5.times { int y ->
+            5.times { int x ->
+                matrix.set(xStart + x, yStart + y, POSITION_ADJUSTMENT_PATTERN[y][x])
             }
         }
     }
 
     private static void embedPositionDetectionPattern(int xStart, int yStart, ByteMatrix matrix) {
-        for (int y = 0; y < 7; ++y) {
-            for (int x = 0; x < 7; ++x) {
-                matrix.set(xStart + x, yStart + y, POSITION_DETECTION_PATTERN[y][x]);
+        7.times { int y ->
+            7.times { int x ->
+                matrix.set(xStart + x, yStart + y, POSITION_DETECTION_PATTERN[y][x])
             }
         }
     }
@@ -427,58 +423,55 @@ package qrcreator
     // Embed position detection patterns and surrounding vertical/horizontal separators.
     private static void embedPositionDetectionPatternsAndSeparators(ByteMatrix matrix) throws IOException {
         // Embed three big squares at corners.
-        int pdpWidth = POSITION_DETECTION_PATTERN[0].size();
+        int pdpWidth = POSITION_DETECTION_PATTERN[0].size()
         // Left top corner.
-        embedPositionDetectionPattern(0, 0, matrix);
+        embedPositionDetectionPattern(0, 0, matrix)
         // Right top corner.
-        embedPositionDetectionPattern(matrix.getWidth() - pdpWidth, 0, matrix);
+        embedPositionDetectionPattern(matrix.width - pdpWidth, 0, matrix)
         // Left bottom corner.
-        embedPositionDetectionPattern(0, matrix.getWidth() - pdpWidth, matrix);
+        embedPositionDetectionPattern(0, matrix.width - pdpWidth, matrix)
 
         // Embed horizontal separation patterns around the squares.
-        int hspWidth = 8;
+        int hspWidth = 8
         // Left top corner.
-        embedHorizontalSeparationPattern(0, hspWidth - 1, matrix);
+        embedHorizontalSeparationPattern(0, hspWidth - 1, matrix)
         // Right top corner.
-        embedHorizontalSeparationPattern(matrix.getWidth() - hspWidth,
-                hspWidth - 1, matrix);
+        embedHorizontalSeparationPattern(matrix.width - hspWidth, hspWidth - 1, matrix)
         // Left bottom corner.
-        embedHorizontalSeparationPattern(0, matrix.getWidth() - hspWidth, matrix);
+        embedHorizontalSeparationPattern(0, matrix.width - hspWidth, matrix)
 
         // Embed vertical separation patterns around the squares.
-        int vspSize = 7;
+        int vspSize = 7
         // Left top corner.
-        embedVerticalSeparationPattern(vspSize, 0, matrix);
+        embedVerticalSeparationPattern(vspSize, 0, matrix)
         // Right top corner.
-        embedVerticalSeparationPattern(matrix.getHeight() - vspSize - 1, 0, matrix);
+        embedVerticalSeparationPattern(matrix.height - vspSize - 1, 0, matrix)
         // Left bottom corner.
-        embedVerticalSeparationPattern(vspSize, matrix.getHeight() - vspSize,
-                matrix);
+        embedVerticalSeparationPattern(vspSize, matrix.height - vspSize, matrix)
     }
 
     // Embed position adjustment patterns if need be.
     private static void maybeEmbedPositionAdjustmentPatterns(Version version, ByteMatrix matrix) {
-        if (version.getVersionNumber() < 2) {  // The patterns appear if version >= 2
-            return;
+        if (version.versionNumber < 2) {  // The patterns appear if version >= 2
+            return
         }
-        int index = version.getVersionNumber() - 1;
-        int[] coordinates = POSITION_ADJUSTMENT_PATTERN_COORDINATE_TABLE[index];
-        int numCoordinates = POSITION_ADJUSTMENT_PATTERN_COORDINATE_TABLE[index].size();
-        for (int i = 0; i < numCoordinates; ++i) {
-            for (int j = 0; j < numCoordinates; ++j) {
-                int y = coordinates[i];
-                int x = coordinates[j];
+        int index = version.versionNumber - 1
+        int[] coordinates = POSITION_ADJUSTMENT_PATTERN_COORDINATE_TABLE[index]
+        int numCoordinates = POSITION_ADJUSTMENT_PATTERN_COORDINATE_TABLE[index].size()
+        for (int i = 0; i < numCoordinates; i++) {
+            for (int j = 0; j < numCoordinates; j++) {
+                int y = coordinates[i]
+                int x = coordinates[j]
                 if (x == -1 || y == -1) {
-                    continue;
+                    return
                 }
                 // If the cell is unset, we embed the position adjustment pattern here.
                 if (isEmpty(matrix.get(x, y))) {
                     // -2 is necessary since the x/y coordinates point to the center of the pattern, not the
                     // left top corner.
-                    embedPositionAdjustmentPattern(x - 2, y - 2, matrix);
+                    embedPositionAdjustmentPattern(x - 2, y - 2, matrix)
                 }
             }
         }
     }
-
 }
