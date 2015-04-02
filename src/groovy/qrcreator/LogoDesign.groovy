@@ -63,9 +63,9 @@ class LogoDesign extends Design {
         g.dispose()
 
         def outY = topPadding
-        (inputHeight - 1).times { int inY ->
+        (inputHeight).times { int inY ->
             def outX = leftPadding
-            (inputWidth - 1).times { int inX ->
+            (inputWidth).times { int inX ->
                 if (input.get(inX, inY) == 1) {
                     drawRect(out.createGraphics(), Color.black, outX, outY, blockSize, blockSize)
                 }
